@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyNets 2.0 — CX Measurements</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f2f2ef; color: #1a1a1a; padding: 40px 32px; }
+  .container { max-width: 1060px; margin: 0 auto; }
+  h1 { font-size: 26px; font-weight: 500; margin-bottom: 4px; }
+  .sub { font-size: 13px; color: #666; margin-bottom: 8px; }
+  .analysis-bar { background: #e6f7ef; border: 0.5px solid #a8d8be; border-left: 4px solid #1D9E75; border-radius: 0 6px 6px 0; padding: 9px 14px; font-size: 12.5px; color: #0a4a2e; margin-bottom: 28px; }
+  .input-link { float: right; font-size: 12px; color: #1D9E75; text-decoration: none; background: #e6f7ef; padding: 4px 10px; border-radius: 4px; border: 0.5px solid #a8d8be; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .tile { background: #1a3c5e; border-radius: 10px; padding: 20px; display: flex; flex-direction: column; min-height: 220px; color: #fff; }
+  .tile.ready { border-top: 3px solid #1D9E75; }
+  .tile.pending { background: #1a3452; border-top: 3px solid #BA7517; }
+  .tile-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+  .tile-name { font-size: 13px; font-weight: 500; color: #e8f0f8; line-height: 1.4; max-width: 70%; }
+  .badge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 4px; white-space: nowrap; }
+  .badge-ready { background: #1D9E75; color: #fff; }
+  .badge-pending { background: #BA7517; color: #fff; }
+  .tile-meta { font-size: 11px; color: #8aaec8; margin-bottom: 14px; line-height: 1.6; }
+  .kpi-row { display: flex; gap: 8px; margin-bottom: 12px; }
+  .kpi-pill { background: rgba(255,255,255,0.08); border: 0.5px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 6px 10px; flex: 1; }
+  .kpi-pill-label { font-size: 10px; color: #8aaec8; margin-bottom: 2px; }
+  .kpi-pill-val { font-size: 17px; font-weight: 500; color: #fff; }
+  .kpi-pill-val.warn { color: #F09595; }
+  .chart-wrap { flex: 1; position: relative; min-height: 80px; }
+  .data-rows { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+  .data-row { display: flex; justify-content: space-between; border-bottom: 0.5px solid rgba(255,255,255,0.08); padding-bottom: 8px; }
+  .data-row-label { font-size: 11px; color: #8aaec8; }
+  .data-row-val { font-size: 12px; font-weight: 500; color: #e8f0f8; }
+  .awaiting { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; opacity: 0.5; }
+  .awaiting p { font-size: 12px; color: #8aaec8; text-align: center; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:4px;">
+    <h1>MyNets 2.0 — CX measurements</h1>
+    <a href="/input.html" class="input-link">Input data</a>
+  </div>
+  <p class="sub">Period: May 2026 · Trend vs last month · Baseline and target: tbc</p>
+  <div class="analysis-bar"><strong>Analysis:</strong> What is behind the numbers — drivers behind customer pains? Tiles marked <strong>ETA: 18 June</strong> are awaiting data from the responsible stakeholder.</div>
+
+  <div class="grid">
+
+    <div class="tile pending" id="tile-mino">
+      <div class="tile-top">
+        <div class="tile-name">MyNets 2.0 availability</div>
+        <span class="badge badge-pending">ETA: 18 June</span>
+      </div>
+      <div class="tile-meta">Precision: High · Source: MyNets 2 (Mino)</div>
+      <div class="data-rows" id="mino-data">
+        <div class="awaiting"><p>Data awaiting input from <strong style="color:#c8dff0;">Mino</strong><br>Expected 18 June</p></div>
+      </div>
+    </div>
+
+    <div class="tile ready">
+      <div class="tile-top">
+        <div class="tile-name">Customer contacts</div>
+        <span class="badge badge-ready">Ready</span>
+      </div>
+      <div class="tile-meta">Precision: Low · Source: Customer Service (Lymae)</div>
+      <div class="kpi-row">
+        <div class="kpi-pill"><div class="kpi-pill-label">Jan–Jun total</div><div class="kpi-pill-val">8,728</div></div>
+        <div class="kpi-pill"><div class="kpi-pill-label">May</div><div class="kpi-pill-val">1,445</div></div>
+      </div>
+      <div class="chart-wrap"><canvas id="cContacts" role="img" aria-label="Customer contacts per month 2026">Monthly contacts.</canvas></div>
+    </div>
+
+    <div class="tile ready">
+      <div class="tile-top">
+        <div class="tile-name">Incidents made to MS OPS Incident Support</div>
+        <span class="badge badge-ready">Ready</span>
+      </div>
+      <div class="tile-meta">Precision: Medium · Source: ServiceNow (Lymae)</div>
+      <div class="kpi-row">
+        <div class="kpi-pill"><div class="kpi-pill-label">Jan–Jun total</div><div class="kpi-pill-val">~600</div></div>
+        <div class="kpi-pill"><div class="kpi-pill-label">SLA breached</div><div class="kpi-pill-val warn">100%</div></div>
+      </div>
+      <div class="chart-wrap"><canvas id="cInc" role="img" aria-label="Incidents per month 2026">Monthly incidents.</canvas></div>
+    </div>
+
+    <div class="tile ready">
+      <div class="tile-top">
+        <div class="tile-name">LAKA escalations (hypercare)</div>
+        <span class="badge badge-ready">Ready</span>
+      </div>
+      <div class="tile-meta">Precision: Medium · Source: Incident Hypercare Chat (Lymae)</div>
+      <div class="kpi-row">
+        <div class="kpi-pill"><div class="kpi-pill-label">Jan–Jun total</div><div class="kpi-pill-val">68</div></div>
+        <div class="kpi-pill"><div class="kpi-pill-label">Repeated follow-ups</div><div class="kpi-pill-val warn">9</div></div>
+      </div>
+      <div class="chart-wrap"><canvas id="cLaka" role="img" aria-label="LAKA escalations per month 2026">Monthly escalations.</canvas></div>
+    </div>
+
+    <div class="tile pending" id="tile-vinay">
+      <div class="tile-top">
+        <div class="tile-name">Data speed from DWH</div>
+        <span class="badge badge-pending">ETA: 18 June</span>
+      </div>
+      <div class="tile-meta">Precision: High · Source: DWH (Vinay)</div>
+      <div class="data-rows" id="vinay-data">
+        <div class="awaiting"><p>Data awaiting input from <strong style="color:#c8dff0;">Vinay</strong><br>Expected 18 June</p></div>
+      </div>
+    </div>
+
+    <div class="tile pending" id="tile-hanna">
+      <div class="tile-top">
+        <div class="tile-name">tNPS (MyNets)</div>
+        <span class="badge badge-pending">ETA: 18 June</span>
+      </div>
+      <div class="tile-meta">Precision: Medium · Source: Calltricks (Hanna)</div>
+      <div class="data-rows" id="hanna-data">
+        <div class="awaiting"><p>Data awaiting input from <strong style="color:#c8dff0;">Hanna</strong><br>Expected 18 June</p></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+  const pG='rgba(93,202,165,0.75)', g='#1D9E75';
+  const pR='rgba(240,149,149,0.75)', r='#A32D2D';
+  const pA='rgba(239,159,39,0.75)',  a='#BA7517';
+  const mk=(s,p)=>[p,p,p,p,s,p];
+
+  function makeChart(id,data,colors,max,step){
+    new Chart(document.getElementById(id),{
+      type:'bar',
+      data:{labels:['Jan','Feb','Mar','Apr','May','Jun*'],datasets:[{data,backgroundColor:colors,borderWidth:0,borderRadius:3}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y.toLocaleString()}}},
+        scales:{y:{beginAtZero:true,max,ticks:{stepSize:step,color:'rgba(255,255,255,0.35)',font:{size:10}},grid:{color:'rgba(255,255,255,0.06)'}},
+          x:{ticks:{color:'rgba(255,255,255,0.45)',font:{size:10},maxRotation:0},grid:{display:false}}}}
+    });
+  }
+
+  makeChart('cContacts',[2053,1362,1662,1537,1445,669],mk(g,pG),2500,500);
+  makeChart('cInc',[100,100,105,85,70,40],mk(r,pR),150,50);
+  makeChart('cLaka',[8,10,14,15,13,8],mk(a,pA),20,5);
+
+  const labels = {
+    avail_may:'Availability % (May)', avail_apr:'Availability % (Apr)',
+    avail_inc:'Downtime incidents', avail_target:'Target',
+    dwh_may:'Avg. refresh time (May)', dwh_apr:'Avg. refresh time (Apr)',
+    dwh_target:'SLA target', dwh_slow:'Slowest query (May)',
+    tnps_may:'tNPS score (May)', tnps_apr:'tNPS score (Apr)',
+    tnps_resp:'Responses (May)', tnps_target:'Target'
+  };
+
+  function renderRows(containerId, keys, data) {
+    const filled = keys.filter(k => data[k]);
+    if (!filled.length) return;
+    const el = document.getElementById(containerId);
+    el.innerHTML = filled.map(k =>
+      `<div class="data-row"><span class="data-row-label">${labels[k]}</span><span class="data-row-val">${data[k]}</span></div>`
+    ).join('');
+  }
+
+  async function loadData() {
+    const data = await fetch('/api/data').then(r => r.json());
+    renderRows('mino-data',  ['avail_may','avail_apr','avail_inc','avail_target'], data);
+    renderRows('vinay-data', ['dwh_may','dwh_apr','dwh_target','dwh_slow'], data);
+    renderRows('hanna-data', ['tnps_may','tnps_apr','tnps_resp','tnps_target'], data);
+  }
+  loadData();
+  setInterval(loadData, 15000);
+</script>
+</body>
+</html>

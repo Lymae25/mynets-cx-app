@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CX Data Input</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, sans-serif; background: #f2f2ef; padding: 40px 24px; }
+  .container { max-width: 520px; margin: 0 auto; }
+  h1 { font-size: 20px; font-weight: 500; margin-bottom: 4px; }
+  .sub { font-size: 13px; color: #666; margin-bottom: 32px; }
+  .section { background: #1a3c5e; border-radius: 10px; padding: 20px; margin-bottom: 16px; color: #fff; }
+  .section h2 { font-size: 14px; font-weight: 500; color: #e8f0f8; margin-bottom: 4px; }
+  .section p { font-size: 11px; color: #8aaec8; margin-bottom: 16px; }
+  .field { margin-bottom: 12px; }
+  .field label { font-size: 11px; color: #8aaec8; display: block; margin-bottom: 4px; }
+  .field input {
+    width: 100%;
+    background: rgba(255,255,255,0.07);
+    border: 0.5px solid rgba(255,255,255,0.18);
+    border-radius: 6px;
+    color: #fff;
+    font-size: 14px;
+    padding: 8px 12px;
+    outline: none;
+    font-family: inherit;
+  }
+  .field input:focus { border-color: #1D9E75; background: rgba(29,158,117,0.12); }
+  .btn {
+    width: 100%;
+    background: #1D9E75;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 8px;
+    font-family: inherit;
+  }
+  .btn:hover { background: #178a65; }
+  .saved { font-size: 12px; color: #1D9E75; margin-top: 8px; text-align: center; display: none; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>CX Measurements — Data input</h1>
+  <p class="sub">Fill in your section and click Save. The dashboard updates automatically.</p>
+
+  <div class="section">
+    <h2>MyNets 2.0 availability — Mino</h2>
+    <p>Precision: High · Source: MyNets 2</p>
+    <div class="field"><label>Availability % (May)</label><input id="avail_may" placeholder="e.g. 99.8%"></div>
+    <div class="field"><label>Availability % (Apr)</label><input id="avail_apr" placeholder="e.g. 99.6%"></div>
+    <div class="field"><label>Downtime incidents</label><input id="avail_inc" placeholder="e.g. 3"></div>
+    <div class="field"><label>Target</label><input id="avail_target" placeholder="e.g. 99.9%"></div>
+    <button class="btn" onclick="save(['avail_may','avail_apr','avail_inc','avail_target'], this)">Save — Mino</button>
+    <div class="saved" id="saved_mino">Saved!</div>
+  </div>
+
+  <div class="section">
+    <h2>Data speed from DWH — Vinay</h2>
+    <p>Precision: High · Source: DWH</p>
+    <div class="field"><label>Avg. refresh time (May)</label><input id="dwh_may" placeholder="e.g. 4.2 min"></div>
+    <div class="field"><label>Avg. refresh time (Apr)</label><input id="dwh_apr" placeholder="e.g. 3.9 min"></div>
+    <div class="field"><label>SLA target</label><input id="dwh_target" placeholder="e.g. 5 min"></div>
+    <div class="field"><label>Slowest query (May)</label><input id="dwh_slow" placeholder="e.g. 12 min"></div>
+    <button class="btn" onclick="save(['dwh_may','dwh_apr','dwh_target','dwh_slow'], this)">Save — Vinay</button>
+    <div class="saved" id="saved_vinay">Saved!</div>
+  </div>
+
+  <div class="section">
+    <h2>tNPS (MyNets) — Hanna</h2>
+    <p>Precision: Medium · Source: Calltricks</p>
+    <div class="field"><label>tNPS score (May)</label><input id="tnps_may" placeholder="e.g. 42"></div>
+    <div class="field"><label>tNPS score (Apr)</label><input id="tnps_apr" placeholder="e.g. 38"></div>
+    <div class="field"><label>Responses (May)</label><input id="tnps_resp" placeholder="e.g. 210"></div>
+    <div class="field"><label>Target</label><input id="tnps_target" placeholder="e.g. 45"></div>
+    <button class="btn" onclick="save(['tnps_may','tnps_apr','tnps_resp','tnps_target'], this)">Save — Hanna</button>
+    <div class="saved" id="saved_hanna">Saved!</div>
+  </div>
+</div>
+
+<script>
+async function save(ids, btn) {
+  for (const id of ids) {
+    const val = document.getElementById(id).value;
+    if (val) await fetch('/api/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, value: val })
+    });
+  }
+  const name = btn.textContent.split('— ')[1].toLowerCase();
+  const el = document.getElementById('saved_' + name);
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 2000);
+}
+
+async function load() {
+  const data = await fetch('/api/data').then(r => r.json());
+  Object.entries(data).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val;
+  });
+}
+load();
+</script>
+</body>
+</html>
