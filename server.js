@@ -1,31 +1,35 @@
 const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
+const fs = require('fs');
 
 const app = express();
-const db = new sqlite3.Database('./data.db');
+const DATA_FILE = '/tmp/data.json';
 
-db.run(`CREATE TABLE IF NOT EXISTS metrics (
-  id TEXT PRIMARY KEY,
-  value TEXT,
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-)`);
+if (!fs.existsSync(DATA_FILE)) {
+  fs.writeFileSync(DATA_FILE, JSON.stringify({}));
+}
 
 app.use(express.json());
 app.use(express.static('public'));
 
 app.get('/api/data', (req, res) => {
-  db.all('SELECT * FROM metrics', (err, rows) => {
-    const data = {};
-    if (rows) rows.forEach(r => data[r.id] = r.value);
+  try {
+    const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
     res.json(data);
-  });
+  } catch(e) {
+    res.json({});
+  }
 });
 
 app.post('/api/update', (req, res) => {
-  const { id, value } = req.body;
-  db.run('INSERT OR REPLACE INTO metrics (id, value, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP)', [id, value], () => {
+  try {
+    const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+    const { id, value } = req.body;
+    data[id] = value;
+    fs.writeFileSync(DATA_FILE, JSON.stringify(data));
     res.json({ ok: true });
-  });
+  } catch(e) {
+    res.json({ ok: false });
+  }
 });
 
 const PORT = process.env.PORT || 8080;
